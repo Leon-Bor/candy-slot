@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "target": "es5",
+    "allowJs": true,
+    "baseUrl": ".",
+    "lib": ["dom", "esnext"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["@types", "node_modules/@types", "node_module/phaser/types"],
+    "types": ["Phaser"]
+  },
+  "include": ["./index.d.ts", "**/*.ts"],
+  "exclude": ["node_modules", "./dist/"]
+}

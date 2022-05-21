@@ -30,11 +30,26 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
     this.height = GameConfig.symbolSize.height;
   }
 
-  moveSymbolDown(reelHeight: Number) {
+  moveSymbolDown(reelHeight: number, stopIndex?: number) {
+    const symbolSlotsInReel = reelHeight / GameConfig.symbolSize.height;
+
+    const currentIndex = this.y / GameConfig.symbolSize.height;
+
+    const stopPosition =
+      typeof stopIndex == "number"
+        ? stopIndex * GameConfig.symbolSize.height
+        : reelHeight;
+
+    const spinSpeed =
+      typeof stopIndex == "number"
+        ? GameConfig.spinSpeed * (stopIndex + 1)
+        : GameConfig.spinSpeed * (symbolSlotsInReel - currentIndex);
+
     this.scene.add.tween({
       targets: this,
-      duration: GameConfig.spinSpeed,
-      y: this.y + GameConfig.symbolSize.height,
+      duration: spinSpeed,
+      y: stopPosition,
+      ease: "Linear",
       onComplete: () => {
         if (this.y >= reelHeight) {
           this.reelSetService?.removeSymbol$.next(this.reelId);
@@ -45,14 +60,12 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
 
   bounce() {
     return new Promise((res) => {
-      const originalPosition = this.y;
-
       this.scene.add.tween({
         targets: this,
         duration: 266 / 2,
         delay: 10,
         ease: Phaser.Math.Easing.Quadratic.Out,
-        y: originalPosition + 30,
+        y: this.y + 30,
         yoyo: true,
         onComplete: () => {
           res(undefined);

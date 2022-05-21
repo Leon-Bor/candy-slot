@@ -50,6 +50,10 @@ export class NetworkService {
     return this.spinData[reelId].length > 0;
   }
 
+  symbolsLeft(reelId: number) {
+    return this.spinData[reelId].length;
+  }
+
   getRandomSymbol() {
     return MathUtils.getRandomInt(1, 7).toString();
   }

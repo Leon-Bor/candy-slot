@@ -14,7 +14,7 @@ const SYMBOL_HEIGHT = SYMBOL_WIDTH;
 const REEL_SET_POSITION_X = 1920 / 2 - 3 * SYMBOL_WIDTH;
 let REEL_SET_POSITION_Y = 100;
 
-export const GameConfig1 = {
+export const GameConfig = {
   spinSpeed: 100,
   spinDuration: 1000,
   timeBetweenReelStops: 300,
@@ -120,8 +120,8 @@ const fiveSymbols = [
   { line: 3 },
   { line: 4 },
 ];
-export const GameConfig = {
-  spinSpeed: 60,
+export const GameConfig3 = {
+  spinSpeed: 160,
   spinDuration: 1000,
   timeBetweenReelStops: 300,
 

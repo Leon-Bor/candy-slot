@@ -45,13 +45,20 @@ export class ReelContainer extends GameObjects.Container {
         // add a new one on top
         const nextSymbol = networkService?.getNextSymbol(this.reelId);
         if (nextSymbol) {
-          this.createSymbol(nextSymbol, -1);
+          const symbol = this.createSymbol(nextSymbol, -1);
 
           if (networkService?.hasNextSymbol(this.reelId)) {
-            this.moveSymbolsDown();
-          }
-
-          if (networkService?.hasNextSymbol(this.reelId) == false) {
+            const symbolsLeft = networkService?.symbolsLeft(this.reelId);
+            if (symbolsLeft <= this.reelConfig.symbols.length) {
+              // last symbol needs to stay on top
+              if (symbolsLeft !== 0) {
+                symbol.moveSymbolDown(this.reelHeight, symbolsLeft - 1);
+              }
+            } else {
+              symbol.moveSymbolDown(this.reelHeight);
+            }
+          } else {
+            // no more symbols coming, do the bounce
             this.onSpinStopping();
           }
         }
@@ -82,6 +89,7 @@ export class ReelContainer extends GameObjects.Container {
       this.symbols.unshift(symbol);
     }
     this.add(symbol);
+    return symbol;
   }
 
   moveSymbolsDown() {
@@ -120,9 +128,26 @@ export class ReelContainer extends GameObjects.Container {
   async onSpinStopping() {
     this.gamePhaseService?.setGamePhase(GamePhase.ReelStopping);
 
-    await this.bounceSymbols();
+    await this.bounceReel();
+
     this.reelStopSound.play();
 
     this.gamePhaseService?.setGamePhase(GamePhase.Idle);
+  }
+
+  async bounceReel() {
+    return new Promise((res) => {
+      this.scene.add.tween({
+        targets: this,
+        duration: 266 / 2,
+        delay: 10,
+        ease: Phaser.Math.Easing.Quadratic.Out,
+        y: this.y + 30,
+        yoyo: true,
+        onComplete: () => {
+          res(undefined);
+        },
+      });
+    });
   }
 }

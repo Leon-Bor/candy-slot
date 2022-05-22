@@ -49,9 +49,6 @@ export class SlotScene extends Scene {
   update(time: number, delta: number): void {}
 
   async spin() {
-    if (this.gamePhaseService.currentPhase == GamePhase.Idle) {
-      await this.networkService.fetch();
-      this.reelSet.spinReels();
-    }
+    this.reelSet.spinReels();
   }
 }

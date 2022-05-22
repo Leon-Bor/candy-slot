@@ -14,8 +14,8 @@ const SYMBOL_HEIGHT = SYMBOL_WIDTH;
 const REEL_SET_POSITION_X = 1920 / 2 - 3 * SYMBOL_WIDTH;
 let REEL_SET_POSITION_Y = 100;
 
-export const GameConfig = {
-  spinSpeed: 100,
+export const GameConfig1 = {
+  spinSpeed: 60,
   spinDuration: 1000,
   timeBetweenReelStops: 300,
 
@@ -60,7 +60,60 @@ export const GameConfig = {
   ],
 };
 
+const fiveSymbols = [
+  { line: 0 },
+  { line: 1 },
+  { line: 2 },
+  { line: 3 },
+  { line: 4 },
+];
 export const GameConfig2 = {
+  spinSpeed: 60,
+  spinDuration: 1000,
+  timeBetweenReelStops: 300,
+
+  symbolSize: { width: SYMBOL_WIDTH, height: SYMBOL_HEIGHT },
+  symbolTextures: ["1", "2", "3", "4", "5", "6", "7"],
+  reels: [
+    {
+      position: {
+        x: REEL_SET_POSITION_X,
+        y: REEL_SET_POSITION_Y,
+      },
+      symbols: fiveSymbols,
+    },
+    {
+      position: {
+        x: REEL_SET_POSITION_X + SYMBOL_WIDTH,
+        y: REEL_SET_POSITION_Y,
+      },
+      symbols: fiveSymbols,
+    },
+    {
+      position: {
+        x: REEL_SET_POSITION_X + SYMBOL_WIDTH * 2,
+        y: REEL_SET_POSITION_Y,
+      },
+      symbols: fiveSymbols,
+    },
+    {
+      position: {
+        x: REEL_SET_POSITION_X + SYMBOL_WIDTH * 3,
+        y: REEL_SET_POSITION_Y,
+      },
+      symbols: fiveSymbols,
+    },
+    {
+      position: {
+        x: REEL_SET_POSITION_X + SYMBOL_WIDTH * 4,
+        y: REEL_SET_POSITION_Y,
+      },
+      symbols: fiveSymbols,
+    },
+  ],
+};
+
+export const GameConfig3 = {
   spinSpeed: 100,
   spinDuration: 1000,
   timeBetweenReelStops: 300,
@@ -109,59 +162,6 @@ export const GameConfig2 = {
         y: REEL_SET_POSITION_Y + SYMBOL_HEIGHT / 2,
       },
       symbols: [{ line: 1 }, { line: 2 }],
-    },
-  ],
-};
-
-const fiveSymbols = [
-  { line: 0 },
-  { line: 1 },
-  { line: 2 },
-  { line: 3 },
-  { line: 4 },
-];
-export const GameConfig3 = {
-  spinSpeed: 160,
-  spinDuration: 1000,
-  timeBetweenReelStops: 300,
-
-  symbolSize: { width: SYMBOL_WIDTH, height: SYMBOL_HEIGHT },
-  symbolTextures: ["1", "2", "3", "4", "5", "6", "7"],
-  reels: [
-    {
-      position: {
-        x: REEL_SET_POSITION_X,
-        y: REEL_SET_POSITION_Y,
-      },
-      symbols: fiveSymbols,
-    },
-    {
-      position: {
-        x: REEL_SET_POSITION_X + SYMBOL_WIDTH,
-        y: REEL_SET_POSITION_Y,
-      },
-      symbols: fiveSymbols,
-    },
-    {
-      position: {
-        x: REEL_SET_POSITION_X + SYMBOL_WIDTH * 2,
-        y: REEL_SET_POSITION_Y,
-      },
-      symbols: fiveSymbols,
-    },
-    {
-      position: {
-        x: REEL_SET_POSITION_X + SYMBOL_WIDTH * 3,
-        y: REEL_SET_POSITION_Y,
-      },
-      symbols: fiveSymbols,
-    },
-    {
-      position: {
-        x: REEL_SET_POSITION_X + SYMBOL_WIDTH * 4,
-        y: REEL_SET_POSITION_Y,
-      },
-      symbols: fiveSymbols,
     },
   ],
 };
@@ -176,13 +176,6 @@ export const GameConfig4 = {
   reels: [
     {
       position: {
-        x: REEL_SET_POSITION_X,
-        y: REEL_SET_POSITION_Y + SYMBOL_HEIGHT / 2,
-      },
-      symbols: [{ line: 0 }, { line: 1 }],
-    },
-    {
-      position: {
         x: REEL_SET_POSITION_X + SYMBOL_WIDTH,
         y: REEL_SET_POSITION_Y,
       },
@@ -215,6 +208,13 @@ export const GameConfig4 = {
         y: REEL_SET_POSITION_Y + SYMBOL_HEIGHT / 2,
       },
       symbols: [{ line: 1 }, { line: 2 }],
+    },
+    {
+      position: {
+        x: REEL_SET_POSITION_X,
+        y: REEL_SET_POSITION_Y + SYMBOL_HEIGHT / 2,
+      },
+      symbols: [{ line: 0 }, { line: 1 }],
     },
   ],
 };
@@ -246,8 +246,8 @@ const tripleSpin = (i: number) => {
   ];
 };
 
-export const GameConfig5 = {
-  spinSpeed: 70,
+export const GameConfig = {
+  spinSpeed: 100,
   spinDuration: 500,
   timeBetweenReelStops: 500,
 

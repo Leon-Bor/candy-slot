@@ -5,6 +5,7 @@ import { SceneService } from "../services/scene.service";
 import { ReelContainer } from "./reel.container";
 import { GameConfig } from "../GameConfig";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
+import { NetworkService } from "../services/network.service";
 
 @autoInjectable()
 export class ReelSetContainer extends GameObjects.Container {
@@ -12,7 +13,8 @@ export class ReelSetContainer extends GameObjects.Container {
 
   public constructor(
     sceneService?: SceneService,
-    public gamePhaseService?: GamePhaseService
+    public gamePhaseService?: GamePhaseService,
+    public networkService?: NetworkService
   ) {
     super(sceneService!.currentScene, 0, 0);
 
@@ -25,10 +27,13 @@ export class ReelSetContainer extends GameObjects.Container {
     this.scene.add.existing(this);
   }
 
-  spinReels() {
-    this.gamePhaseService?.setGamePhase(GamePhase.ReelSpinning);
-    this.reels.map((reel) => {
-      reel.moveSymbolsDown();
-    });
+  async spinReels() {
+    if (this.gamePhaseService?.currentPhase == GamePhase.Idle) {
+      this.gamePhaseService?.setGamePhase(GamePhase.ReelSpinning);
+      await this.networkService?.fetch();
+      this.reels.map((reel) => {
+        reel.moveSymbolsDown();
+      });
+    }
   }
 }

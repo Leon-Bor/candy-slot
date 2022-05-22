@@ -21,7 +21,7 @@ export class ReelContainer extends GameObjects.Container {
     id: number,
     reelConfig: IGameConfigReel,
     sceneService?: SceneService,
-    reelSetService?: ReelSetService,
+    public reelSetService?: ReelSetService,
     public gamePhaseService?: GamePhaseService,
     networkService?: NetworkService
   ) {
@@ -39,7 +39,7 @@ export class ReelContainer extends GameObjects.Container {
     reelSetService?.removeSymbol$
       .pipe(filter((reelId) => reelId == this.reelId))
       .subscribe((reelId) => {
-        console.log(reelId, this.reelId);
+        // remove out of screen symbol
         this.symbols.pop()?.destroy();
 
         // add a new one on top
@@ -127,12 +127,9 @@ export class ReelContainer extends GameObjects.Container {
 
   async onSpinStopping() {
     this.gamePhaseService?.setGamePhase(GamePhase.ReelStopping);
-
-    await this.bounceReel();
-
     this.reelStopSound.play();
-
-    this.gamePhaseService?.setGamePhase(GamePhase.Idle);
+    await this.bounceReel();
+    this.reelSetService?.onReelComplete();
   }
 
   async bounceReel() {

@@ -16,7 +16,7 @@ const gameConfig: Types.Core.GameConfig = {
   title: "Phaser game tutorial",
   type: Phaser.WEBGL,
   parent: "game",
-  backgroundColor: "#351f1b",
+  backgroundColor: "#101010",
   width: 1920,
   height: 1080,
   scale: {

@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, Observable } from "rxjs";
 import { injectable, singleton } from "tsyringe";
 import { container } from "tsyringe";
 
@@ -16,14 +16,18 @@ export enum GamePhase {
 export class GamePhaseService {
   private _currentPhase = new BehaviorSubject(GamePhase.Loading);
 
-  constructor() {}
+  constructor() {
+    this._currentPhase.pipe(distinctUntilChanged()).subscribe((p) => {
+      console.log("GamePhase: ", p);
+    });
+  }
 
   setGamePhase(phase: GamePhase) {
     this._currentPhase.next(phase);
   }
 
   get currentPhase$() {
-    return this._currentPhase;
+    return this._currentPhase.pipe(distinctUntilChanged());
   }
 
   get currentPhase() {

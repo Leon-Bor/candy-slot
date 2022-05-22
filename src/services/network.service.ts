@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from "rxjs";
 import { injectable, singleton } from "tsyringe";
 import { container } from "tsyringe";
-import { GameConfig } from "../GameConfig";
+import { GameConfig, GameType } from "../GameConfig";
 import { MathUtils } from "../utils/math-utils";
 import { GamePhase } from "./gamePhase.service";
 
@@ -25,8 +25,11 @@ export class NetworkService {
       const reelData = new Array(maxNumbersOfSymbols).fill(0).map(() => {
         return this.getRandomSymbol();
       });
-      // one more on top
-      reelData.push(this.getRandomSymbol());
+
+      if (GameConfig.gameType == GameType.Slot) {
+        // one more on top
+        reelData.push(this.getRandomSymbol());
+      }
 
       return reelData;
     });
@@ -37,7 +40,8 @@ export class NetworkService {
     const reelStopDelay = reelId * GameConfig.timeBetweenReelStops;
     if (
       new Date().getTime() - this.spinningTime - reelStopDelay >
-      GameConfig.spinDuration
+        GameConfig.spinDuration ||
+      GameConfig.gameType == GameType.CandyCrush
     ) {
       return this.spinData[reelId].pop();
     } else {
@@ -55,6 +59,10 @@ export class NetworkService {
   }
 
   getRandomSymbol() {
-    return MathUtils.getRandomInt(1, 7).toString();
+    const randInt = MathUtils.getRandomInt(
+      0,
+      GameConfig.symbolTextures.length - 1
+    );
+    return GameConfig.symbolTextures[randInt];
   }
 }

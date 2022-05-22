@@ -1,7 +1,7 @@
 import { Game, GameObjects } from "phaser";
 import { filter } from "rxjs";
 import { autoInjectable } from "tsyringe";
-import { GameConfig, IGameConfigReel } from "../GameConfig";
+import { GameConfig, GameType, IGameConfigReel } from "../GameConfig";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
 import { NetworkService } from "../services/network.service";
 import { ReelSetService } from "../services/reelSet.service";
@@ -23,7 +23,7 @@ export class ReelContainer extends GameObjects.Container {
     sceneService?: SceneService,
     public reelSetService?: ReelSetService,
     public gamePhaseService?: GamePhaseService,
-    networkService?: NetworkService
+    public networkService?: NetworkService
   ) {
     super(sceneService!.currentScene, 0, 0);
     this.reelId = id;
@@ -37,51 +37,74 @@ export class ReelContainer extends GameObjects.Container {
 
     // destroy symbol when reached out of screen
     reelSetService?.removeSymbol$
-      .pipe(filter((reelId) => reelId == this.reelId))
-      .subscribe((reelId) => {
+      .pipe(filter(({ reelId }) => reelId == this.reelId))
+      .subscribe(async ({ reelId, lastIndex }) => {
         // remove out of screen symbol
         this.symbols.pop()?.destroy();
 
         // add a new one on top
         const nextSymbol = networkService?.getNextSymbol(this.reelId);
+        const symbolsLeft = networkService?.symbolsLeft(this.reelId) ?? 0;
+
         if (nextSymbol) {
           const symbol = this.createSymbol(nextSymbol, -1);
 
-          if (networkService?.hasNextSymbol(this.reelId)) {
-            const symbolsLeft = networkService?.symbolsLeft(this.reelId);
-            if (symbolsLeft <= this.reelConfig.symbols.length) {
-              // last symbol needs to stay on top
-              if (symbolsLeft !== 0) {
-                symbol.moveSymbolDown(this.reelHeight, symbolsLeft - 1);
+          if (GameConfig.gameType == GameType.Slot) {
+            if (networkService?.hasNextSymbol(this.reelId)) {
+              if (symbolsLeft <= this.reelConfig.symbols.length) {
+                // last symbol needs to stay on top
+                if (symbolsLeft !== 0) {
+                  symbol.moveSymbolDown({ stopIndex: symbolsLeft - 1 });
+                }
+              } else {
+                symbol.moveSymbolDown({});
               }
             } else {
-              symbol.moveSymbolDown(this.reelHeight);
+              // no more symbols coming, do the bounce
+              this.onSpinStopping();
             }
-          } else {
-            // no more symbols coming, do the bounce
-            this.onSpinStopping();
+          }
+
+          if (GameConfig.gameType == GameType.CandyCrush) {
+            await symbol.moveSymbolDown({
+              stopIndex: symbolsLeft,
+              delay:
+                GameConfig.timeBetweenReelStops * this.reelId +
+                (this.reelConfig.symbols.length - symbolsLeft) *
+                  GameConfig!.symbolFallDelay,
+            });
+
+            // send stop when no next symbol and top symbol has arrived
+            if (
+              networkService?.hasNextSymbol(this.reelId) == false &&
+              lastIndex == 0
+            ) {
+              // no more symbols coming, do the bounce
+              this.onSpinStopping();
+            }
           }
         }
       });
 
-    console.log("ReelContainer created");
     // init slot with symbols
     this.createSymbols();
 
     // add symbol row above
-    this.createSymbol("1", -1);
+    if (GameConfig.gameType == GameType.Slot) {
+      this.createSymbol(networkService!.getRandomSymbol(), -1);
+    }
 
     this.createMask();
   }
 
   private createSymbols() {
     this.reelConfig.symbols.map((_, i) => {
-      this.createSymbol("1", i);
+      this.createSymbol(this.networkService!.getRandomSymbol(), i);
     });
   }
 
   createSymbol(texture: string, startPositionY: number) {
-    const symbol = new SymbolContainer(this.reelId, texture);
+    const symbol = new SymbolContainer(this.reelId, this.reelHeight, texture);
     symbol.y = GameConfig.symbolSize.height * startPositionY;
     if (startPositionY >= 0) {
       this.symbols.push(symbol);
@@ -94,7 +117,7 @@ export class ReelContainer extends GameObjects.Container {
 
   moveSymbolsDown() {
     this.symbols.map((symbol) => {
-      symbol.moveSymbolDown(this.reelHeight);
+      symbol.moveSymbolDown();
     });
   }
 
@@ -117,18 +140,12 @@ export class ReelContainer extends GameObjects.Container {
     this.mask = shape.createGeometryMask();
   }
 
-  async bounceSymbols() {
-    const bounces: Promise<unknown>[] = [];
-    this.symbols.map((symbol) => {
-      bounces.push(symbol.bounce());
-    });
-    return Promise.all(bounces);
-  }
-
   async onSpinStopping() {
     this.gamePhaseService?.setGamePhase(GamePhase.ReelStopping);
-    this.reelStopSound.play();
-    await this.bounceReel();
+    if (GameConfig.gameType == GameType.Slot) {
+      this.reelStopSound.play();
+      await this.bounceReel();
+    }
     this.reelSetService?.onReelComplete();
   }
 

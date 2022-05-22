@@ -6,7 +6,7 @@ import { GamePhase, GamePhaseService } from "./gamePhase.service";
 
 @singleton()
 export class ReelSetService {
-  removeSymbol$ = new Subject();
+  removeSymbol$ = new Subject<{ reelId: number; lastIndex?: number }>();
   spinComplete$ = new BehaviorSubject(undefined);
 
   constructor(gamePhaseService: GamePhaseService) {
@@ -18,8 +18,14 @@ export class ReelSetService {
       });
   }
 
-  removeLastSymbolFromReel(reelId: number) {
-    this.removeSymbol$.next(reelId);
+  removeLastSymbolFromReel({
+    reelId,
+    lastIndex,
+  }: {
+    reelId: number;
+    lastIndex?: number;
+  }) {
+    this.removeSymbol$.next({ reelId, lastIndex });
   }
 
   onReelComplete() {

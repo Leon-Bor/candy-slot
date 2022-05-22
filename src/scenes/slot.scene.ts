@@ -10,6 +10,8 @@ import { NetworkService } from "../services/network.service";
 export class SlotScene extends Scene {
   reelSet!: ReelSetContainer;
 
+  spaceKey!: Phaser.Input.Keyboard.Key;
+
   public constructor(
     public sceneService: SceneService,
     public gamePhaseService: GamePhaseService,
@@ -39,14 +41,19 @@ export class SlotScene extends Scene {
       this
     );
 
-    this.input.keyboard
-      .addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
-      .on("down", () => {
-        this.spin();
-      });
+    this.spaceKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
+    // .on("down", () => {
+    //   this.spin();
+    // });
   }
 
-  update(time: number, delta: number): void {}
+  update(time: number, delta: number): void {
+    if (this.spaceKey.isDown) {
+      this.spin();
+    }
+  }
 
   async spin() {
     this.reelSet.spinReels();

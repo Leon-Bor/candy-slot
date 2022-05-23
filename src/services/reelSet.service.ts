@@ -1,7 +1,6 @@
-import { BehaviorSubject, filter, skip, Subject } from "rxjs";
-import { injectable, singleton } from "tsyringe";
-import { container } from "tsyringe";
-import { GameConfig } from "../GameConfig";
+import { BehaviorSubject, filter, Subject } from "rxjs";
+import { singleton } from "tsyringe";
+import { GameConfigService } from "./gameConfig.service";
 import { GamePhase, GamePhaseService } from "./gamePhase.service";
 
 @singleton()
@@ -9,23 +8,15 @@ export class ReelSetService {
   removeSymbol$ = new Subject<{ reelId: number; lastIndex?: number }>();
   spinComplete$ = new BehaviorSubject(undefined);
 
-  constructor(gamePhaseService: GamePhaseService) {
+  constructor(
+    gamePhaseService: GamePhaseService,
+    gameConfigService: GameConfigService
+  ) {
     this.spinComplete$
-      .pipe(filter((_, i) => i % GameConfig.reels.length === 0))
+      .pipe(filter((_, i) => i % gameConfigService.reels.length === 0))
       .subscribe(() => {
-        console.log("spin complete");
-        gamePhaseService.setGamePhase(GamePhase.Idle);
+        gamePhaseService.endGamePhase(GamePhase.ReelSetStopped); // Now Idle or any feature
       });
-  }
-
-  removeLastSymbolFromReel({
-    reelId,
-    lastIndex,
-  }: {
-    reelId: number;
-    lastIndex?: number;
-  }) {
-    this.removeSymbol$.next({ reelId, lastIndex });
   }
 
   onReelComplete() {

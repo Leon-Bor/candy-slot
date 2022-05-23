@@ -24,12 +24,15 @@ export class SlotScene extends Scene {
 
   preload(): void {
     this.sceneService.setCurrentScene(this);
-    this.gamePhaseService.setGamePhase(GamePhase.Idle);
+    this.gamePhaseService.endGamePhase(GamePhase.Loading);
   }
 
   create(): void {
     console.log("slot scene");
     this.reelSet = new ReelSetContainer();
+
+    // this.cameras.main.setZoom(1.3);
+    // this.cameras.main.scrollY = -15;
 
     // const container = this.add.container(200, 200);
     // container.add(this.add.sprite(100, 100, "2"));

@@ -1,6 +1,6 @@
-import { BehaviorSubject, skip } from "rxjs";
-import { autoInjectable, inject } from "tsyringe";
-import { GameConfig, GameType } from "../GameConfig";
+import { autoInjectable } from "tsyringe";
+import { GameType } from "../game.config";
+import { GameConfigService } from "../services/gameConfig.service";
 import { ReelSetService } from "../services/reelSet.service";
 import { SceneService } from "../services/scene.service";
 
@@ -17,23 +17,24 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
     reelHeight: number,
     texture: string,
     sceneService?: SceneService,
-    public reelSetService?: ReelSetService
+    public reelSetService?: ReelSetService,
+    public gameConfigService?: GameConfigService
   ) {
     super(sceneService!.currentScene, 0, 0);
     this.reelId = reelId;
     this.reelHeight = reelHeight;
 
     this.symbol = this.scene.add.image(
-      GameConfig.symbolSize.width / 2,
-      GameConfig.symbolSize.height / 2,
+      gameConfigService!.symbolSize.width / 2,
+      gameConfigService!.symbolSize.height / 2,
       texture
     );
     this.symbol.setOrigin(0.5, 0.5);
 
     this.add(this.symbol);
 
-    this.width = GameConfig.symbolSize.width;
-    this.height = GameConfig.symbolSize.height;
+    this.width = gameConfigService!.symbolSize.width;
+    this.height = gameConfigService!.symbolSize.height;
   }
 
   moveSymbolDown({
@@ -41,19 +42,21 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
     delay,
   }: { stopIndex?: number; delay?: number } = {}) {
     return new Promise((res) => {
-      const symbolSlotsInReel = this.reelHeight / GameConfig.symbolSize.height;
+      const symbolSlotsInReel =
+        this.reelHeight / this.gameConfigService!.symbolSize.height;
 
-      const currentIndex = this.y / GameConfig.symbolSize.height;
+      const currentIndex = this.y / this.gameConfigService!.symbolSize.height;
 
       const stopPosition =
         typeof stopIndex == "number"
-          ? stopIndex * GameConfig.symbolSize.height
+          ? stopIndex * this.gameConfigService!.symbolSize.height
           : this.reelHeight;
 
       const spinSpeed =
         typeof stopIndex == "number"
-          ? GameConfig.spinSpeed * (stopIndex + 1)
-          : GameConfig.spinSpeed * (symbolSlotsInReel - currentIndex);
+          ? this.gameConfigService!.spinSpeed * (stopIndex + 1)
+          : this.gameConfigService!.spinSpeed *
+            (symbolSlotsInReel - currentIndex);
 
       this.scene.add.tween({
         targets: this,
@@ -65,7 +68,7 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
           // candy crush specific
           if (
             this.y < this.reelHeight &&
-            GameConfig.gameType == GameType.CandyCrush
+            this.gameConfigService!.gameType == GameType.CandyCrush
           ) {
             this.symbolArriveSound.play();
             await this.wabble();

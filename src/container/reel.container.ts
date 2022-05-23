@@ -1,7 +1,8 @@
-import { Game, GameObjects } from "phaser";
+import { GameObjects } from "phaser";
 import { filter } from "rxjs";
 import { autoInjectable } from "tsyringe";
-import { GameConfig, GameType, IGameConfigReel } from "../GameConfig";
+import { GameType, IGameConfigReel } from "../game.config";
+import { GameConfigService } from "../services/gameConfig.service";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
 import { NetworkService } from "../services/network.service";
 import { ReelSetService } from "../services/reelSet.service";
@@ -23,13 +24,15 @@ export class ReelContainer extends GameObjects.Container {
     sceneService?: SceneService,
     public reelSetService?: ReelSetService,
     public gamePhaseService?: GamePhaseService,
-    public networkService?: NetworkService
+    public networkService?: NetworkService,
+    public gameConfigService?: GameConfigService
   ) {
     super(sceneService!.currentScene, 0, 0);
     this.reelId = id;
     this.reelConfig = reelConfig;
     this.reelHeight =
-      this.reelConfig.symbols.length * GameConfig.symbolSize.height;
+      this.reelConfig.symbols.length *
+      gameConfigService!.config.symbolSize.height;
 
     // Set reel on position
     this.x = this.reelConfig.position.x;
@@ -49,7 +52,7 @@ export class ReelContainer extends GameObjects.Container {
         if (nextSymbol) {
           const symbol = this.createSymbol(nextSymbol, -1);
 
-          if (GameConfig.gameType == GameType.Slot) {
+          if (gameConfigService?.gameType == GameType.Slot) {
             if (networkService?.hasNextSymbol(this.reelId)) {
               if (symbolsLeft <= this.reelConfig.symbols.length) {
                 // last symbol needs to stay on top
@@ -65,13 +68,13 @@ export class ReelContainer extends GameObjects.Container {
             }
           }
 
-          if (GameConfig.gameType == GameType.CandyCrush) {
+          if (gameConfigService?.gameType == GameType.CandyCrush) {
             await symbol.moveSymbolDown({
               stopIndex: symbolsLeft,
               delay:
-                GameConfig.timeBetweenReelStops * this.reelId +
+                gameConfigService?.timeBetweenReelStops * this.reelId +
                 (this.reelConfig.symbols.length - symbolsLeft) *
-                  GameConfig!.symbolFallDelay,
+                  gameConfigService?.symbolFallDelay,
             });
 
             // send stop when no next symbol and top symbol has arrived
@@ -90,7 +93,7 @@ export class ReelContainer extends GameObjects.Container {
     this.createSymbols();
 
     // add symbol row above
-    if (GameConfig.gameType == GameType.Slot) {
+    if (gameConfigService?.gameType == GameType.Slot) {
       this.createSymbol(networkService!.getRandomSymbol(), -1);
     }
 
@@ -105,7 +108,7 @@ export class ReelContainer extends GameObjects.Container {
 
   createSymbol(texture: string, startPositionY: number) {
     const symbol = new SymbolContainer(this.reelId, this.reelHeight, texture);
-    symbol.y = GameConfig.symbolSize.height * startPositionY;
+    symbol.y = this.gameConfigService!.symbolSize.height * startPositionY;
     if (startPositionY >= 0) {
       this.symbols.push(symbol);
     } else {
@@ -133,20 +136,26 @@ export class ReelContainer extends GameObjects.Container {
     shape.fillRect(
       this.reelConfig.position.x,
       this.y,
-      GameConfig.symbolSize.width,
-      GameConfig.symbolSize.height * this.reelConfig.symbols.length
+      this.gameConfigService!.symbolSize.width,
+      this.gameConfigService!.symbolSize.height * this.reelConfig.symbols.length
     );
 
     this.mask = shape.createGeometryMask();
   }
 
   async onSpinStopping() {
-    this.gamePhaseService?.setGamePhase(GamePhase.ReelStopping);
-    if (GameConfig.gameType == GameType.Slot) {
+    if (this.reelId == 0) {
+      this.gamePhaseService?.endGamePhase(GamePhase.ReelSetSpinning);
+    }
+
+    if (this.gameConfigService!.gameType == GameType.Slot) {
       this.reelStopSound.play();
       await this.bounceReel();
     }
-    this.gamePhaseService?.setGamePhase(GamePhase.ReelStopped);
+
+    if (this.reelId == this.gameConfigService!.reels.length - 1) {
+      this.gamePhaseService?.endGamePhase(GamePhase.ReelSetStopping);
+    }
     this.reelSetService?.onReelComplete();
   }
 

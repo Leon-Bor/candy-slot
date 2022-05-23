@@ -305,7 +305,7 @@ SYMBOL_WIDTH = 100;
 SYMBOL_HEIGHT = SYMBOL_WIDTH;
 
 REEL_SET_POSITION_X = 1920 / 2 - 4 * SYMBOL_WIDTH;
-REEL_SET_POSITION_Y = 100;
+REEL_SET_POSITION_Y = 1080 / 2 - 4 * SYMBOL_WIDTH;
 
 middleSymbols = [
   { line: 0 },
@@ -318,7 +318,7 @@ middleSymbols = [
   { line: 7 },
 ];
 
-export const GameConfig: GameConfig = {
+export const GameConfig6: GameConfig = {
   gameType: GameType.CandyCrush,
   spinSpeed: 60,
   spinDuration: 0,

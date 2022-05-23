@@ -17,11 +17,11 @@ const gameConfig: Types.Core.GameConfig = {
   type: Phaser.WEBGL,
   parent: "game",
   backgroundColor: "#101010",
-  // width: 1920,
-  // height: 1080,
   scale: {
     mode: Phaser.Scale.ScaleModes.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 1920,
+    height: 1080,
   },
   // physics: {
   //   default: "arcade",

@@ -1,9 +1,7 @@
-import { BehaviorSubject, Observable } from "rxjs";
-import { injectable, singleton } from "tsyringe";
-import { container } from "tsyringe";
-import { GameConfig, GameType } from "../GameConfig";
+import { singleton } from "tsyringe";
+import { GameType } from "../game.config";
 import { MathUtils } from "../utils/math-utils";
-import { GamePhase } from "./gamePhase.service";
+import { GameConfigService } from "./gameConfig.service";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -13,20 +11,20 @@ export class NetworkService {
 
   spinningTime: number = new Date().getTime();
 
-  constructor() {}
+  constructor(public gameConfigService: GameConfigService) {}
 
   async fetch() {
     await delay(MathUtils.getRandomInt(50, 100));
-    this.spinData = GameConfig.reels.map((reel, i) => {
+    this.spinData = this.gameConfigService!.reels.map((reel, i) => {
       const maxNumbersOfSymbols = Math.max(
-        ...GameConfig.reels.map((r) => r.symbols.length)
+        ...this.gameConfigService!.reels.map((r) => r.symbols.length)
       );
 
       const reelData = new Array(maxNumbersOfSymbols).fill(0).map(() => {
         return this.getRandomSymbol();
       });
 
-      if (GameConfig.gameType == GameType.Slot) {
+      if (this.gameConfigService?.gameType == GameType.Slot) {
         // one more on top
         reelData.push(this.getRandomSymbol());
       }
@@ -37,11 +35,11 @@ export class NetworkService {
   }
 
   getNextSymbol(reelId: number) {
-    const reelStopDelay = reelId * GameConfig.timeBetweenReelStops;
+    const reelStopDelay = reelId * this.gameConfigService!.timeBetweenReelStops;
     if (
       new Date().getTime() - this.spinningTime - reelStopDelay >
-        GameConfig.spinDuration ||
-      GameConfig.gameType == GameType.CandyCrush
+        this.gameConfigService!.spinDuration ||
+      this.gameConfigService?.gameType == GameType.CandyCrush
     ) {
       return this.spinData[reelId].pop();
     } else {
@@ -61,8 +59,8 @@ export class NetworkService {
   getRandomSymbol() {
     const randInt = MathUtils.getRandomInt(
       0,
-      GameConfig.symbolTextures.length - 1
+      this.gameConfigService!.symbolTextures.length - 1
     );
-    return GameConfig.symbolTextures[randInt];
+    return this.gameConfigService?.symbolTextures[randInt];
   }
 }

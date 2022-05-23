@@ -146,6 +146,7 @@ export class ReelContainer extends GameObjects.Container {
       this.reelStopSound.play();
       await this.bounceReel();
     }
+    this.gamePhaseService?.setGamePhase(GamePhase.ReelStopped);
     this.reelSetService?.onReelComplete();
   }
 

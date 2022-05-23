@@ -10,7 +10,7 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
   reelHeight: number = 0;
   symbol!: Phaser.GameObjects.Image;
 
-  symbolArriveSound = this.scene.sound.add("reelStop");
+  symbolArriveSound = this.scene.sound.add("reelStop", { volume: 0.2 });
 
   public constructor(
     reelId: number,

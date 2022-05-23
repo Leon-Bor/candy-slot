@@ -5,6 +5,7 @@ import { MathUtils } from "../utils/math-utils";
 import { ReelSetContainer } from "../container/reelSet.container";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
 import { NetworkService } from "../services/network.service";
+import { CandyCrushService } from "../gameSpecific/candyCrush.service";
 
 @autoInjectable()
 export class SlotScene extends Scene {
@@ -15,7 +16,8 @@ export class SlotScene extends Scene {
   public constructor(
     public sceneService: SceneService,
     public gamePhaseService: GamePhaseService,
-    public networkService: NetworkService
+    public networkService: NetworkService,
+    public candyCrushService: CandyCrushService
   ) {
     super("slot-scene");
   }

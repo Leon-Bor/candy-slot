@@ -7,6 +7,7 @@ import { GamePhase, GamePhaseService } from "./gamePhase.service";
 export class ReelSetService {
   removeSymbol$ = new Subject<{ reelId: number; lastIndex?: number }>();
   spinComplete$ = new BehaviorSubject(undefined);
+  slotFace$ = new BehaviorSubject<string[][]>([]);
 
   constructor(
     gamePhaseService: GamePhaseService,

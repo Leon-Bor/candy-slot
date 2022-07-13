@@ -23,4 +23,6 @@ export class ReelSetService {
   onReelComplete() {
     this.spinComplete$.next(undefined);
   }
+
+  paintSymbol(reelId: number, symbolIndex: number) {}
 }

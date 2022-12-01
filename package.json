@@ -1,5 +1,5 @@
 {
-  "name": "phaser-dance-cam",
+  "name": "candy-slot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Leon-Bor/phaser-dance-cam.git"
+    "url": "git+https://github.com/Leon-Bor/candy-slot.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Leon-Bor/phaser-dance-cam/issues"
+    "url": "https://github.com/Leon-Bor/candy-slot/issues"
   },
-  "homepage": "https://github.com/Leon-Bor/phaser-dance-cam#readme",
+  "homepage": "https://github.com/Leon-Bor/candy-slot#readme",
   "dependencies": {
     "phaser": "^3.55.2",
     "reflect-metadata": "^0.1.13",

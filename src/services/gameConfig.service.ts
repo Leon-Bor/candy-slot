@@ -11,11 +11,27 @@ import {
 
 export class GameConfigService {
   private static _instance: GameConfigService;
+  private _currentConfig = new BehaviorSubject(GameConfig6);
+
+  constructor() {
+    const params = new URLSearchParams(location.search);
+    const configs = [
+      GameConfig1,
+      GameConfig2,
+      GameConfig3,
+      GameConfig4,
+      GameConfig5,
+      GameConfig6,
+    ];
+
+    if (configs[parseInt(params.get("config") || "&")]) {
+      this._currentConfig.next(configs[parseInt(params.get("config") || "6")]);
+    }
+  }
+
   public static get Instance() {
     return this._instance || (this._instance = new this());
   }
-
-  private _currentConfig = new BehaviorSubject(GameConfig6);
 
   get config() {
     return this._currentConfig.value;

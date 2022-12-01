@@ -15,7 +15,7 @@ export class GameConfigService {
     return this._instance || (this._instance = new this());
   }
 
-  private _currentConfig = new BehaviorSubject(GameConfig5);
+  private _currentConfig = new BehaviorSubject(GameConfig6);
 
   get config() {
     return this._currentConfig.value;

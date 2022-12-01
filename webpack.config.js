@@ -23,7 +23,7 @@ const config = {
 
   cache: false,
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "docs"),
     filename: "bundle.js",
   },
   module: {

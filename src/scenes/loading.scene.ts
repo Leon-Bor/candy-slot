@@ -1,14 +1,15 @@
 import { GameObjects, Scene } from "phaser";
 import { SceneService } from "../services/scene.service";
-import { autoInjectable } from "tsyringe";
 
-@autoInjectable()
 export class LoadingScene extends Scene {
   private king!: GameObjects.Sprite;
 
-  constructor(public sceneService: SceneService) {
+  public sceneService = SceneService.Instance;
+
+  constructor() {
     super("loading-scene");
   }
+
   create(): void {
     this.scene.start("slot-scene");
   }

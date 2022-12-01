@@ -1,23 +1,28 @@
 import { BehaviorSubject, filter, Subject } from "rxjs";
-import { singleton } from "tsyringe";
+import { Singleton } from "../../packages/core/singleton";
 import { GameConfigService } from "./gameConfig.service";
 import { GamePhase, GamePhaseService } from "./gamePhase.service";
 
-@singleton()
 export class ReelSetService {
+  private static _instance: ReelSetService;
+
   removeSymbol$ = new Subject<{ reelId: number; lastIndex?: number }>();
   spinComplete$ = new BehaviorSubject(undefined);
   slotFace$ = new BehaviorSubject<string[][]>([]);
 
-  constructor(
-    gamePhaseService: GamePhaseService,
-    gameConfigService: GameConfigService
-  ) {
+  gamePhaseService = GamePhaseService.Instance;
+  gameConfigService = GameConfigService.Instance;
+
+  constructor() {
     this.spinComplete$
-      .pipe(filter((_, i) => i % gameConfigService.reels.length === 0))
+      .pipe(filter((_, i) => i % this.gameConfigService.reels.length === 0))
       .subscribe(() => {
-        gamePhaseService.endGamePhase(GamePhase.ReelSetStopped); // Now Idle or any feature
+        this.gamePhaseService.endGamePhase(GamePhase.ReelSetStopped); // Now Idle or any feature
       });
+  }
+
+  public static get Instance() {
+    return this._instance || (this._instance = new this());
   }
 
   onReelComplete() {

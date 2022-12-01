@@ -1,12 +1,9 @@
-import { filter } from "rxjs";
-import { autoInjectable } from "tsyringe";
 import { GameType } from "../game.config";
 import { GameConfigService } from "../services/gameConfig.service";
 import { ReelSetService } from "../services/reelSet.service";
 import { SceneService } from "../services/scene.service";
 import { SymbolService } from "../services/symbol.service";
 
-@autoInjectable()
 export class SymbolContainer extends Phaser.GameObjects.Container {
   reelId: number = 0;
   reelHeight: number = 0;
@@ -15,30 +12,27 @@ export class SymbolContainer extends Phaser.GameObjects.Container {
 
   symbolArriveSound = this.scene.sound.add("reelStop", { volume: 0.2 });
 
-  public constructor(
-    reelId: number,
-    reelHeight: number,
-    texture: string,
-    sceneService?: SceneService,
-    public reelSetService?: ReelSetService,
-    public gameConfigService?: GameConfigService,
-    public symbolService?: SymbolService
-  ) {
-    super(sceneService!.currentScene, 0, 0);
+  sceneService = SceneService.Instance;
+  reelSetService = ReelSetService.Instance;
+  gameConfigService = GameConfigService.Instance;
+  symbolService = SymbolService.Instance;
+
+  public constructor(reelId: number, reelHeight: number, texture: string) {
+    super(SceneService.Instance.currentScene, 0, 0);
     this.reelId = reelId;
     this.reelHeight = reelHeight;
 
     this.symbol = this.scene.add.image(
-      gameConfigService!.symbolSize.width / 2,
-      gameConfigService!.symbolSize.height / 2,
+      this.gameConfigService!.symbolSize.width / 2,
+      this.gameConfigService!.symbolSize.height / 2,
       texture
     );
     this.symbol.setOrigin(0.5, 0.5);
 
     this.add(this.symbol);
 
-    this.width = gameConfigService!.symbolSize.width;
-    this.height = gameConfigService!.symbolSize.height;
+    this.width = this.gameConfigService!.symbolSize.width;
+    this.height = this.gameConfigService!.symbolSize.height;
 
     this.symbolService?.onSymbolPaint$.subscribe(({ reelId, symbolIndex }) => {
       if (this.reelId == reelId && symbolIndex == this.stopPosition) {

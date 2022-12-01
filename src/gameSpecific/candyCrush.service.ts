@@ -1,6 +1,5 @@
 import { BehaviorSubject, distinctUntilChanged, Observable } from "rxjs";
-import { injectable, singleton } from "tsyringe";
-import { container } from "tsyringe";
+import { Singleton } from "../../packages/core/singleton";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
 import { ReelSetService } from "../services/reelSet.service";
 import { SymbolService } from "../services/symbol.service";
@@ -16,19 +15,23 @@ export interface CandyPosition {
   checked: boolean;
 }
 
-@singleton()
 export class CandyCrushService {
-  constructor(
-    public gamePhaseService: GamePhaseService,
-    public reelSetService: ReelSetService,
-    public symbolService: SymbolService
-  ) {
-    gamePhaseService.addCustomGamePhase(
+  private static _instance: CandyCrushService;
+  public static get Instance() {
+    return this._instance || (this._instance = new this());
+  }
+
+  public gamePhaseService = GamePhaseService.Instance;
+  public reelSetService = ReelSetService.Instance;
+  public symbolService = SymbolService.Instance;
+
+  constructor() {
+    this.gamePhaseService.addCustomGamePhase(
       CandyGamePhase.CrushCandies,
       GamePhase.ReelSetStopped
     );
 
-    gamePhaseService.currentPhase$.subscribe((currentPhase) => {
+    this.gamePhaseService.currentPhase$.subscribe((currentPhase) => {
       if (currentPhase == CandyGamePhase.CrushCandies) {
         console.log("Time to crash");
         const candyFace = this.reelSetService.slotFace$.value;
@@ -49,7 +52,7 @@ export class CandyCrushService {
           });
         });
 
-        gamePhaseService.endGamePhase(CandyGamePhase.CrushCandies);
+        this.gamePhaseService.endGamePhase(CandyGamePhase.CrushCandies);
       }
     });
   }

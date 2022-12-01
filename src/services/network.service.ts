@@ -1,17 +1,22 @@
-import { singleton } from "tsyringe";
+import { Singleton } from "../../packages/core/singleton";
 import { GameType } from "../game.config";
 import { MathUtils } from "../utils/math-utils";
 import { GameConfigService } from "./gameConfig.service";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-@singleton()
 export class NetworkService {
+  private static _instance: NetworkService;
+
   spinData!: string[][];
 
   spinningTime: number = new Date().getTime();
 
-  constructor(public gameConfigService: GameConfigService) {}
+  public gameConfigService = GameConfigService.Instance;
+
+  public static get Instance() {
+    return this._instance || (this._instance = new this());
+  }
 
   async fetch() {
     await delay(MathUtils.getRandomInt(50, 100));

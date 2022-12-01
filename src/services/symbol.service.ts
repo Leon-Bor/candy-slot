@@ -1,17 +1,17 @@
-import { BehaviorSubject, filter, Subject } from "rxjs";
-import { singleton } from "tsyringe";
-import { GameConfigService } from "./gameConfig.service";
-import { GamePhase, GamePhaseService } from "./gamePhase.service";
+import { Subject } from "rxjs";
 
-@singleton()
 export class SymbolService {
+  private static _instance: SymbolService;
+
+  public static get Instance() {
+    return this._instance || (this._instance = new this());
+  }
+
   onSymbolPaint$ = new Subject<{
     reelId: number;
     symbolIndex: number;
     color: string;
   }>();
-
-  constructor() {}
 
   paintSymbol(reelId: number, symbolIndex: number) {
     this.onSymbolPaint$.next({

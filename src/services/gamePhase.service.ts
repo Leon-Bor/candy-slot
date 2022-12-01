@@ -1,5 +1,5 @@
 import { BehaviorSubject, distinctUntilChanged } from "rxjs";
-import { singleton } from "tsyringe";
+import { Singleton } from "../../packages/core/singleton";
 
 export enum GamePhase {
   Loading = "Loading",
@@ -12,8 +12,8 @@ export enum GamePhase {
   // WinParty = "WinParty",
 }
 
-@singleton()
 export class GamePhaseService {
+  private static _instance: GamePhaseService;
   private _currentPhase$ = new BehaviorSubject<GamePhase | string>(
     GamePhase.Loading
   );
@@ -24,6 +24,10 @@ export class GamePhaseService {
     this._currentPhase$.pipe(distinctUntilChanged()).subscribe((p) => {
       console.log("GamePhase: ", p);
     });
+  }
+
+  public static get Instance() {
+    return this._instance || (this._instance = new this());
   }
 
   endGamePhase(phase: GamePhase | string) {

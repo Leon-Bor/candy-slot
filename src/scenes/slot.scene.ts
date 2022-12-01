@@ -1,24 +1,22 @@
 import { GameObjects, Scene } from "phaser";
 import { SceneService } from "../services/scene.service";
-import { autoInjectable, instanceCachingFactory } from "tsyringe";
 import { MathUtils } from "../utils/math-utils";
 import { ReelSetContainer } from "../container/reelSet.container";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
 import { NetworkService } from "../services/network.service";
 import { CandyCrushService } from "../gameSpecific/candyCrush.service";
 
-@autoInjectable()
 export class SlotScene extends Scene {
   reelSet!: ReelSetContainer;
 
   spaceKey!: Phaser.Input.Keyboard.Key;
 
-  public constructor(
-    public sceneService: SceneService,
-    public gamePhaseService: GamePhaseService,
-    public networkService: NetworkService,
-    public candyCrushService: CandyCrushService
-  ) {
+  public sceneService = SceneService.Instance;
+  public gamePhaseService = GamePhaseService.Instance;
+  public networkService = NetworkService.Instance;
+  public candyCrushService = CandyCrushService.Instance;
+
+  public constructor() {
     super("slot-scene");
   }
 

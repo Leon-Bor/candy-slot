@@ -1,6 +1,5 @@
 import { GameObjects } from "phaser";
 import { filter } from "rxjs";
-import { autoInjectable } from "tsyringe";
 import { GameType, IGameConfigReel } from "../game.config";
 import { GameConfigService } from "../services/gameConfig.service";
 import { GamePhase, GamePhaseService } from "../services/gamePhase.service";
@@ -9,7 +8,6 @@ import { ReelSetService } from "../services/reelSet.service";
 import { SceneService } from "../services/scene.service";
 import { SymbolContainer } from "./symbol.container";
 
-@autoInjectable()
 export class ReelContainer extends GameObjects.Container {
   reelId: number = 0;
   symbols: SymbolContainer[] = [];
@@ -18,42 +16,42 @@ export class ReelContainer extends GameObjects.Container {
   reelConfig!: IGameConfigReel;
   reelStopSound = this.scene.sound.add("reelStop");
 
-  public constructor(
-    id: number,
-    reelConfig: IGameConfigReel,
-    sceneService?: SceneService,
-    public reelSetService?: ReelSetService,
-    public gamePhaseService?: GamePhaseService,
-    public networkService?: NetworkService,
-    public gameConfigService?: GameConfigService
-  ) {
-    super(sceneService!.currentScene, 0, 0);
+  reelSetService = ReelSetService.Instance;
+  gamePhaseService = GamePhaseService.Instance;
+  networkService = NetworkService.Instance;
+  gameConfigService = GameConfigService.Instance;
+
+  sceneService = SceneService.Instance;
+
+  public constructor(id: number, reelConfig: IGameConfigReel) {
+    super(SceneService.Instance.currentScene, 0, 0);
+
     this.reelId = id;
     this.reelConfig = reelConfig;
     this.reelHeight =
       this.reelConfig.symbols.length *
-      gameConfigService!.config.symbolSize.height;
+      this.gameConfigService!.config.symbolSize.height;
 
     // Set reel on position
     this.x = this.reelConfig.position.x;
     this.y = this.reelConfig.position.y;
 
     // destroy symbol when reached out of screen
-    reelSetService?.removeSymbol$
+    this.reelSetService.removeSymbol$
       .pipe(filter(({ reelId }) => reelId == this.reelId))
       .subscribe(async ({ reelId, lastIndex }) => {
         // remove out of screen symbol
         this.symbols.pop()?.destroy();
 
         // add a new one on top
-        const nextSymbol = networkService?.getNextSymbol(this.reelId);
-        const symbolsLeft = networkService?.symbolsLeft(this.reelId) ?? 0;
+        const nextSymbol = this.networkService?.getNextSymbol(this.reelId);
+        const symbolsLeft = this.networkService?.symbolsLeft(this.reelId) ?? 0;
 
         if (nextSymbol) {
           const symbol = this.createSymbol(nextSymbol, -1);
 
-          if (gameConfigService?.gameType == GameType.Slot) {
-            if (networkService?.hasNextSymbol(this.reelId)) {
+          if (this.gameConfigService.gameType == GameType.Slot) {
+            if (this.networkService.hasNextSymbol(this.reelId)) {
               if (symbolsLeft <= this.reelConfig.symbols.length) {
                 // last symbol needs to stay on top
                 if (symbolsLeft !== 0) {
@@ -68,18 +66,18 @@ export class ReelContainer extends GameObjects.Container {
             }
           }
 
-          if (gameConfigService?.gameType == GameType.CandyCrush) {
+          if (this.gameConfigService?.gameType == GameType.CandyCrush) {
             await symbol.moveSymbolDown({
               stopIndex: symbolsLeft,
               delay:
-                gameConfigService?.timeBetweenReelStops * this.reelId +
+                this.gameConfigService?.timeBetweenReelStops * this.reelId +
                 (this.reelConfig.symbols.length - symbolsLeft) *
-                  gameConfigService?.symbolFallDelay,
+                  this.gameConfigService?.symbolFallDelay,
             });
 
             // send stop when no next symbol and top symbol has arrived
             if (
-              networkService?.hasNextSymbol(this.reelId) == false &&
+              this.networkService?.hasNextSymbol(this.reelId) == false &&
               lastIndex == 0
             ) {
               // no more symbols coming, do the bounce
@@ -93,8 +91,8 @@ export class ReelContainer extends GameObjects.Container {
     this.createSymbols();
 
     // add symbol row above
-    if (gameConfigService?.gameType == GameType.Slot) {
-      this.createSymbol(networkService!.getRandomSymbol(), -1);
+    if (this.gameConfigService?.gameType == GameType.Slot) {
+      this.createSymbol(this.networkService!.getRandomSymbol(), -1);
     }
 
     this.createMask();

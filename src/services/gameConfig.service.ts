@@ -1,12 +1,21 @@
 import { BehaviorSubject } from "rxjs";
-import { singleton } from "tsyringe";
-import { GameConfig1, GameConfig5, GameConfig6 } from "../game.config";
+import { Singleton } from "../../packages/core/singleton";
+import {
+  GameConfig1,
+  GameConfig2,
+  GameConfig3,
+  GameConfig4,
+  GameConfig5,
+  GameConfig6,
+} from "../game.config";
 
-@singleton()
 export class GameConfigService {
-  private _currentConfig = new BehaviorSubject(GameConfig6);
+  private static _instance: GameConfigService;
+  public static get Instance() {
+    return this._instance || (this._instance = new this());
+  }
 
-  constructor() {}
+  private _currentConfig = new BehaviorSubject(GameConfig5);
 
   get config() {
     return this._currentConfig.value;
